@@ -1,9 +1,8 @@
 import app.frontend.screens.*;
-import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidElement;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import static core.utils.PropertyLoader.getProperty;
+import static core.mt.utils.PropertyLoader.getProperty;
 import static org.junit.Assert.*;
 
 

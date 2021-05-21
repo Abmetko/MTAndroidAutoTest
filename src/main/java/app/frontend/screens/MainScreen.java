@@ -9,6 +9,7 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
+import lombok.SneakyThrows;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.TimeoutException;
@@ -18,7 +19,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import static core.utils.PropertyLoader.getProperty;
+import static core.mt.utils.PropertyLoader.getProperty;
 
 
 public class MainScreen extends BaseScreen{
@@ -135,6 +136,9 @@ public class MainScreen extends BaseScreen{
     public @AndroidFindBy(xpath = "//*[contains(@resource-id,'tv_name') and @text='CRYPTOS']")
     AndroidElement CRYPTOS;
 
+    public @AndroidFindBy(xpath = "//*[contains(@resource-id,'tv_name') and @text='CRYPTO_1']")
+    AndroidElement CRYPTO_1;
+
     public @AndroidFindBy(id = "tv_opened")
     AndroidElement OPEN;
 
@@ -232,6 +236,7 @@ public class MainScreen extends BaseScreen{
         waitScreenLoaded();
     }
 
+    @SneakyThrows
     public void setSpinnerValue(MobileElement spinner, double value){
         final int ANIMATION_TIME = 200; // ms
         final int PRESS_TIME = 200; // ms
@@ -259,11 +264,7 @@ public class MainScreen extends BaseScreen{
                 return;
             }
             // always allow swipe action to complete
-            try {
-                Thread.sleep(ANIMATION_TIME);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            Thread.sleep(ANIMATION_TIME);
         }
     }
 
@@ -271,10 +272,10 @@ public class MainScreen extends BaseScreen{
         driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
         try {
             instrument_error.getText();
-            System.out.println("[WARNING] Instrument is NOT AVAILABLE. There is no reason to continue test.");
+            logger.debug("Instrument is NOT AVAILABLE. There is no reason to continue test");
             return false;
         }catch (Exception e){
-            System.out.println("[DEBUG] Instrument is AVAILABLE.");
+            logger.debug("Instrument is AVAILABLE");
             driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
             return true;
         }

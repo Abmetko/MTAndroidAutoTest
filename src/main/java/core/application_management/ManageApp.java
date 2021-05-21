@@ -1,40 +1,34 @@
 package core.application_management;
 
+import core.screen_driver.DriverFactory;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidElement;
 import java.time.Duration;
-import static core.utils.PropertyLoader.getProperty;
 
 
 public class ManageApp {
 
-    private AppiumDriver<AndroidElement> driver;
-
-    public ManageApp(AppiumDriver<AndroidElement> driver){
-        this.driver = driver;
-    }
-
-    public void resetApp(){
+    public static void resetApp(AppiumDriver<AndroidElement> driver){
         driver.resetApp();
     }
 
-    public void closeApp(){
+    public static void closeApp(AppiumDriver<AndroidElement> driver){
         driver.closeApp();
     }
 
-    public void launchApp(){
+    public static void launchApp(AppiumDriver<AndroidElement> driver){
         driver.launchApp();
     }
 
-    public void driverQuit(){
+    public static void driverQuit(AppiumDriver<AndroidElement> driver){
         driver.quit();
     }
 
-    public void removeApp(){
-        driver.removeApp(getProperty("app.package"));
+    public static void removeApp(AppiumDriver<AndroidElement> driver){
+        driver.removeApp(DriverFactory.package_name);
     }
 
-    public void runAppInBackgroundAndRelaunch(){
+    public static void runAppInBackgroundAndRelaunch(AppiumDriver<AndroidElement> driver){
         driver.runAppInBackground(Duration.ofSeconds(1));
     }
 }

@@ -4,9 +4,8 @@
     <listeners>
         <listener class-name="core.utils.Listener"/>
     </listeners>
-    <parameter name="app_url" value=""/>
-    <parameter name="app_args" value=""/>
-    <parameter name="run_type" value="r"/>
+    <parameter name="app_args" value=""/> <!-- e.g. mvn clean test -Dapp_args=com.roinvesting,ROInvesting -->
+    <parameter name="os_type" value="m"/> <!-- w(windows), m(macOS) -->
 
     <test name="test 1">
         <classes>

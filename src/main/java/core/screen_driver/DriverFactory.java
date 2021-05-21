@@ -1,7 +1,5 @@
 package core.screen_driver;
 
-import core.utils.APIClient;
-import core.utils.PropertyLoader;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
@@ -12,113 +10,86 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+import static core.mt.utils.PropertyLoader.getProperty;
 
 
 public class DriverFactory {
 
-    private static AppiumDriverLocalService SERVICE = null;
+    private static AppiumDriverLocalService service = null;
 
     protected static AndroidDriver<AndroidElement> driver = null;
 
-    private static final String appiumInstallationDir = "C:/Program Files";
+    public static final String APP_DIR = "src/main/resources";
 
-    private static final String appiumNode = appiumInstallationDir + File.separator + "nodejs" + File.separator + "node.exe";
-
-    private static final String appiumNodeModule = "C:/Users/abmetko/AppData/Roaming/npm/node_modules/appium/build/lib/main.js";
-
-    private static final String APP_DIR = "src/main/resources";
-
-    private static final String appName = PropertyLoader.getProperty("file.name");
+    private static final String APP_NAME = getProperty("file.name");
 
     private static final String APP_FILE_ABSOLUTE_PATH = getAppFilePath();
 
-    public static String APP_URL;
+    public static String os_type;
 
-    public static String APP_ARGS;
+    public static String project_name;
 
-    public static String RUN_TYPE;
+    public static String package_name;
 
     private DriverFactory(){
-
+        throw new IllegalStateException("DriverFactory is utility class");
     }
 
     public static AndroidDriver<AndroidElement> getDriver() {
-        if (driver != null) {
-            return driver;
+        if (driver == null) {
+            configureSessionForRealAndroidDevice();
         }
-        configureSessionForRealAndroidDevice();
         return driver;
     }
 
     private static void configureSessionForRealAndroidDevice() {
-        if(RUN_TYPE.equals("l")){
-            DesiredCapabilities capabilities = new DesiredCapabilities();
-            capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
-            capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "28a598b70804");
-            capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "7.0");
-            capabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, PropertyLoader.getProperty("app.package"));
-            capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, PropertyLoader.getProperty("app.wait.activity"));
-            capabilities.setCapability("newCommandTimeout", 180000);
-            capabilities.setCapability("isHeadless", false);
-            capabilities.setCapability("unicodeKeyboard", true);
-            capabilities.setCapability("resetKeyboard", true);
-            capabilities.setCapability("automationName", "UiAutomator2");
-            capabilities.setCapability("autoGrantPermissions", true);
-            capabilities.setCapability("settings[waitForIdleTimeout]", 200);
-            try {
-                driver = new AndroidDriver<AndroidElement>(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        }else if(RUN_TYPE.equals("r")){
-            DesiredCapabilities capabilities = new DesiredCapabilities();
-            HashMap<String, Boolean> networkLogsOptions = new HashMap<>();
-            capabilities.setCapability("browserstack.networkLogsOptions", networkLogsOptions);
-            capabilities.setCapability("app", APP_URL);
-            capabilities.setCapability("browserstack.user", PropertyLoader.getProperty("browserstack.login"));
-            capabilities.setCapability("browserstack.key", PropertyLoader.getProperty("browserstack.password"));
-            capabilities.setCapability("device", PropertyLoader.getProperty("device.name"));
-            capabilities.setCapability("os_version", PropertyLoader.getProperty("device.os"));
-            capabilities.setCapability("project", APP_ARGS.split(",")[1]);
-            capabilities.setCapability("build", "Build: " + APIClient.getApplicationData(APP_URL));
-            capabilities.setCapability("name", "smoke test");
-            capabilities.setCapability("automationName", "UIAutomator2");
-            capabilities.setCapability("newCommandTimeout", 120000);
-            capabilities.setCapability("unicodeKeyboard", true);
-            capabilities.setCapability("resetKeyboard", true);
-            capabilities.setCapability("browserstack.appium_version", "1.18.0");
-            capabilities.setCapability("settings[waitForIdleTimeout]", 200);
-            capabilities.setCapability("disableAnimations", "true");
-            capabilities.setCapability("browserstack.debug","true");
-            networkLogsOptions.put("captureContent", true);
-            capabilities.setCapability("browserstack.networkLogs", "true");
-            capabilities.setCapability("browserstack.idleTimeout", "90");
-            try {
-                driver = new AndroidDriver<AndroidElement>(new URL("http://hub-cloud.browserstack.com/wd/hub"), capabilities);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("app", APP_FILE_ABSOLUTE_PATH);
+        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
+        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "5200cfd8b2bfb4e5");
+        capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "8.0");
+        capabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, package_name);
+        capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, getProperty("app.wait.activity"));
+        capabilities.setCapability("newCommandTimeout", 180000);
+        capabilities.setCapability("isHeadless", false);
+        capabilities.setCapability("unicodeKeyboard", true);
+        capabilities.setCapability("resetKeyboard", true);
+        capabilities.setCapability("automationName", "UiAutomator2");
+        capabilities.setCapability("autoGrantPermissions", true);
+        capabilities.setCapability("settings[waitForIdleTimeout]", 200);
+        try {
+            driver = new AndroidDriver<AndroidElement>(new URL("http://192.168.140.61:4723/wd/hub"), capabilities);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.unlockDevice();
     }
 
     public static void runAppiumServer() {
-        SERVICE = AppiumDriverLocalService.buildService(new AppiumServiceBuilder()
-                .usingDriverExecutable(new File(appiumNode))
-                .withAppiumJS(new File(appiumNodeModule))
-                .withIPAddress("127.0.0.1").usingPort(4723));
-        SERVICE.start();
+        String propertyOsName = "appium.node.module.macOS";
+        if(os_type.equals("w")) propertyOsName = "appium.node.module.windows";
+        String appiumNodeModulePath = getProperty(propertyOsName);
+        service = AppiumDriverLocalService.buildService(new AppiumServiceBuilder()
+                .withAppiumJS(new File(appiumNodeModulePath))
+                .withIPAddress("192.168.140.61").usingPort(4723));
+        service.start();
     }
 
     public static void stopAppiumServer() {
-        SERVICE.stop();
+        if(service != null){
+            service.stop();
+            service = null;
+        }
+    }
+
+    public static void killDriver(){
+        driver = null;
     }
 
     private static String getAppFilePath() {
         File appDir = new File(APP_DIR);
-        return new File(appDir, appName).getAbsolutePath();
+        return new File(appDir, APP_NAME).getAbsolutePath();
     }
 }

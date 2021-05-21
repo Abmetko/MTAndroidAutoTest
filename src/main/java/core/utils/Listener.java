@@ -18,8 +18,6 @@ import java.util.Calendar;
 
 public class Listener implements ITestListener {
 
-    private static String SESSION_STATUS = "UNMARKED";
-
     @Override
     public void onFinish(ITestContext Result) {
 
@@ -49,11 +47,7 @@ public class Listener implements ITestListener {
         String errorTrace = "error";
         if (null != Result.getThrowable()) {
             errorTrace = Result.getThrowable().getMessage();
-        }
-        if(!DriverFactory.RUN_TYPE.equals("l")){
-            JavascriptExecutor jse = (JavascriptExecutor)DriverFactory.getDriver();
-            jse.executeScript("browserstack_executor: {\"action\": \"setSessionStatus\", \"arguments\": {\"status\":\"failed\", \"reason\": \"Test FAILED: " + errorTrace + "\"}}");
-            SESSION_STATUS = "FAILED";
+            System.out.println(errorTrace);
         }
     }
 
@@ -69,11 +63,7 @@ public class Listener implements ITestListener {
 
     @Override
     public void onTestSuccess(ITestResult Result) {
-        if(SESSION_STATUS.equals("UNMARKED")&!DriverFactory.RUN_TYPE.equals("l")){
-            JavascriptExecutor jse = (JavascriptExecutor)DriverFactory.getDriver();
-            jse.executeScript("browserstack_executor: {\"action\": \"setSessionStatus\", \"arguments\": {\"status\": \"passed\", \"reason\": \"Test PASSED\"}}");
-            SESSION_STATUS = "PASSED";
-        }
+
     }
 
     public static class DateClass{
